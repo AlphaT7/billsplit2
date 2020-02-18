@@ -253,6 +253,19 @@ export default {
           console.log(error);
         });
     },
+    new_record: function() {
+      switch (this.group) {
+        case "customer":
+          this.panelfields = [
+            { id: "", f_name: "", l_name: "", nickname: "", email: "" }
+          ];
+          break;
+
+        default:
+          break;
+      }
+      this.show_panel = true;
+    },
     panel_height: function() {
       document.querySelector("#panel").style.height =
         document.body.scrollHeight + "px";
@@ -397,6 +410,7 @@ export default {
   top: 0;
   font-size: 40px;
   margin: 3px 7px;
+  cursor: pointer;
 }
 
 @keyframes bounce {
@@ -484,6 +498,7 @@ span {
   color: #fff;
   padding: 4px 7px;
   float: right;
+  cursor: pointer;
 }
 
 .panel_fields {
