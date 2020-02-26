@@ -2,20 +2,16 @@
 
 include "init.php";
 
-$restaurant_id = $_GET["restaurant_id"];
+getMenuItems($conn);
 
-getMenuItems($conn,$restaurant_id);
-
-function getMenuItems($conn,$restaurant_id) {
+function getMenuItems($conn)
+{
     global $handle;
-    $sql = "SELECT * FROM `menus` WHERE restaurant_id = :restaurant_id";
-    $handle= $conn->prepare($sql);
-    $handle->bindParam('restaurant_id',$restaurant_id,PDO::PARAM_STR);
+    $sql = "SELECT * FROM `menus`";
+    $handle = $conn->prepare($sql);
     $handle->execute();
     $query_results = $handle->fetchAll(PDO::FETCH_BOTH);
-    echo json_encode($query_results); 
+    echo json_encode($query_results);
 
-    $handle->closeCursor();	
+    $handle->closeCursor();
 }
-
-?>

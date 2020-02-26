@@ -2,28 +2,31 @@
 
 include "init.php";
 
-$id = $_GET["id"];
-$name = $_GET["name"];
-$phone = $_GET["phone"];
-$website = $_GET["website"];
+$data = json_decode(json_encode($_POST))[0];
 
-updateRestaurant($conn,$id,$name,$phone,$website);
+$id = $data->id;
+$rname = $data->rname;
+$phone = $data->phone;
+$website = $data->website;
+$city = $data->city;
 
-function updateRestaurant($conn,$id,$name,$phone,$website) {
+updateRestaurant($conn, $id, $rname, $phone, $website, $city);
+
+function updateRestaurant($conn, $id, $rname, $phone, $website, $city)
+{
     global $handle;
-    $sql = "UPDATE `restaurants` SET name = :name, phone = :phone, website = :website WHERE id = :id"; 
-    $handle= $conn->prepare($sql);
-    $handle->bindParam('id',$id,PDO::PARAM_STR);
-    $handle->bindParam('name',$name,PDO::PARAM_STR);
-    $handle->bindParam('phone',$phone,PDO::PARAM_STR);
-    $handle->bindParam('website',$website,PDO::PARAM_STR);
+    $sql = "UPDATE `restaurants` SET rname = :rname, phone = :phone, website = :website, city = :city WHERE id = :id";
+    $handle = $conn->prepare($sql);
+    $handle->bindParam(':id', $id, PDO::PARAM_STR);
+    $handle->bindParam(':rname', $rname, PDO::PARAM_STR);
+    $handle->bindParam(':phone', $phone, PDO::PARAM_STR);
+    $handle->bindParam(':website', $website, PDO::PARAM_STR);
+    $handle->bindParam(':city', $city, PDO::PARAM_STR);
     $handle->execute();
-    //$query_results = $handle->fetchAll(PDO::FETCH_BOTH);
-    //echo json_encode($query_results); 
+
+    echo "Update Successfull!";
 
     echo "Restaurant Updated!";
 
-    $handle->closeCursor();	
+    $handle->closeCursor();
 }
-
-?>

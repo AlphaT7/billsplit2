@@ -2,6 +2,7 @@
   <section id="page_main">
     <div id="panel" class="full_screen" :class="{ show_full_screen: show_panel != false }">
       <div class="panel_title">
+        <span class="panel_title_text">new {{ group }}</span>
         <span class="right">
           <font-awesome-icon
             @click="
@@ -28,36 +29,47 @@
         <div v-if="!newrecord" @click="update_record()">Update</div>&nbsp;
         <div v-if="!newrecord" @click="delete_record()">Delete</div>
         <div v-if="newrecord" @click="add_record()">Save</div>
+        <div v-if="!newrecord & tab == 'restaurants'">Add Menu</div>
       </div>
     </div>
 
+    <!--------- MENU BUTTONS START --------->
     <section id="btn_group">
       <div
         id="btn_customers"
         class="btn btn_customers"
-        @click="tab = 'customers', group = 'customer'"
+        @click="tab = 'customers', group = 'customer', newrecord = false"
       >
         <font-awesome-icon icon="users" />
       </div>
       <div
         id="btn_restaurants"
         class="btn btn_restaurants"
-        @click="tab = 'restaurants', group = 'restaurant'"
+        @click="tab = 'restaurants', group = 'restaurant', newrecord = false"
       >
         <font-awesome-icon icon="utensils" />
       </div>
-      <div id="btn_orders" class="btn btn_orders" @click="tab = 'orders', group = 'order'">
+      <div
+        id="btn_orders"
+        class="btn btn_orders"
+        @click="tab = 'orders', group = 'order', newrecord = false"
+      >
         <font-awesome-icon icon="file-invoice-dollar" />
       </div>
-      <div id="btn_about" class="btn btn_about" @click="tab = 'about', group = 'about'">
+      <div
+        id="btn_about"
+        class="btn btn_about"
+        @click="tab = 'about', group = 'about', newrecord = false"
+      >
         <font-awesome-icon icon="at" />
       </div>
     </section>
+    <!--------- MENU BUTTONS STOP --------->
 
     <section class="tab data_customers" :class="{ showtab: tab == 'customers' }">
       <div class="title">
         <h2>Customers</h2>
-        <span class="new_record" @click="new_record()">
+        <span class="new_record" @click="newrecord = true,new_record()">
           <font-awesome-icon icon="plus-square" />
         </span>
       </div>
@@ -68,7 +80,7 @@
     <section class="tab data_restaurants" :class="{ showtab: tab == 'restaurants' }">
       <div class="title">
         <h2>Restaurants</h2>
-        <span class="new_record" @click="new_record()">
+        <span class="new_record" @click="newrecord = true,new_record()">
           <font-awesome-icon icon="plus-square" />
         </span>
       </div>
@@ -83,7 +95,7 @@
       <figure id="logo">
         <img src="img/wwlogo.png" />
         <figcaption>
-          <span class="text">< Developed By /></span>
+          <span class="text">&lt; Developed By /&gt;</span>
           <p class="text">
             W
             <span class="neg_margin">
@@ -163,7 +175,7 @@ export default {
           },
           {
             title: "Name",
-            field: "name",
+            field: "rname",
             sorter: "string",
             editor: false
           }
@@ -215,8 +227,8 @@ export default {
           qs.stringify(this.panelfields)
         )
         .then(response => {
-          axios.get("php/getcustomers.php").then(response => {
-            this.cdata = JSON.parse(JSON.stringify(response)).data;
+          axios.get("php/get" + this.group + "s.php").then(response => {
+            this.choose_datafields(response.data);
           });
           console.log(response.data);
         })
@@ -228,8 +240,8 @@ export default {
       axios
         .post("php/add" + this.group + ".php", qs.stringify(this.panelfields))
         .then(response => {
-          axios.get("php/getcustomers.php").then(response => {
-            this.cdata = JSON.parse(JSON.stringify(response)).data;
+          axios.get("php/get" + this.group + "s.php").then(response => {
+            this.choose_datafields(response.data);
           });
           this.show_panel = false;
         })
@@ -238,20 +250,23 @@ export default {
         });
     },
     delete_record: function() {
-      axios
-        .post(
-          "php/delete" + this.group + ".php",
-          qs.stringify({ id: this.panelfields[0].id })
-        )
-        .then(response => {
-          axios.get("php/getcustomers.php").then(response => {
-            this.cdata = JSON.parse(JSON.stringify(response)).data;
+      var r = confirm("Are you sure you with to delete this record?");
+      if (r == true) {
+        axios
+          .post(
+            "php/delete" + this.group + ".php",
+            qs.stringify({ id: this.panelfields[0].id })
+          )
+          .then(response => {
+            axios.get("php/get" + this.group + "s.php").then(response => {
+              this.choose_datafields(response.data);
+            });
+            this.show_panel = false;
+          })
+          .catch(error => {
+            console.log(error);
           });
-          this.show_panel = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }
     },
     new_record: function() {
       switch (this.group) {
@@ -260,7 +275,11 @@ export default {
             { id: "", f_name: "", l_name: "", nickname: "", email: "" }
           ];
           break;
-
+        case "restaurant":
+          this.panelfields = [
+            { id: "", rname: "", city: "", phone: "", website: "" }
+          ];
+          break;
         default:
           break;
       }
@@ -269,14 +288,33 @@ export default {
     panel_height: function() {
       document.querySelector("#panel").style.height =
         document.body.scrollHeight + "px";
+    },
+    choose_datafields: function(data) {
+      switch (this.group) {
+        case "customer":
+          this.cdata = data;
+          break;
+
+        case "restaurant":
+          this.rdata = data;
+          break;
+
+        case "order":
+          //this.odata = data;
+          break;
+
+        default:
+          break;
+      }
     }
   },
   created() {
     axios.get("php/getcustomers.php").then(response => {
-      this.cdata = JSON.parse(JSON.stringify(response)).data;
+      this.cdata = response.data;
     });
     axios.get("php/getrestaurants.php").then(response => {
-      this.rdata = JSON.parse(JSON.stringify(response)).data;
+      //this.rdata = response.data;
+      console.log(response.data);
     });
   }
 };
@@ -436,6 +474,7 @@ export default {
 
 .text {
   margin: 0;
+  padding: 0 0 10px 0;
   font-size: 16px;
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
@@ -525,6 +564,12 @@ span {
   background: #1e5799;
 }
 
+.panel_title_text {
+  text-transform: capitalize;
+  font-size: 25px;
+  padding: 8px 0 0 30px;
+}
+
 .panel_buttons {
   margin-top: 2%;
   text-align: center;
@@ -537,15 +582,22 @@ span {
   border-radius: 5px;
   font-size: 25px;
   font-weight: bold;
-  text-align: center;
+  align-items: center;
   background: linear-gradient(to top, #1e5799 0%, #2989d8 50%, #7db9e8 100%);
-  /*background: linear-gradient(to top, #419e39 0%, #4cd829 50%, #92e87d 100%);*/
 }
 
 .panel_buttons div:nth-child(2) {
   background: linear-gradient(to top, #9e3939 0%, #d82929 50%, #e87d7d 100%);
 }
 
+.panel_buttons div:nth-child(3) {
+  margin: 5px 0 0 5px;
+  background: linear-gradient(to top, #419e39 0%, #4cd829 50%, #92e87d 100%);
+}
+
 @media only screen and (max-width: 320px) {
+  .btn {
+    font-size: 35px;
+  }
 }
 </style>

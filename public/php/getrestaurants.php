@@ -6,23 +6,34 @@ getRestaurants($conn);
 
 function getRestaurants($conn)
 {
+
     global $handle;
-    $str = "";
-    $sql = "SELECT * FROM `restaurants`";
+    $sql = "SELECT `id`, `rname` FROM `restaurants`";
     $handle = $conn->prepare($sql);
     $handle->execute();
-    $query_results = $handle->fetchAll(PDO::FETCH_BOTH);
-    echo json_encode($query_results);
+    $arr = $handle->fetchAll(PDO::FETCH_ASSOC);
+    //print_r($query_results);
+    //echo json_encode($query_results);
 
-    /*
-    while ($row = $handle->fetch()){
-    $str .= '<div class="btn_wrapper">';
-    $str .= '<div data-id="' . $row['id'] . '" class="btn_edit">' . $row['name'] .'</div>';
-    $str .= '<div data-id="' . $row['id'] . '"class="btn_del"><i class="fas fa-minus"></i></div>';
-    $str .= '</div>';
+    $r_query_results = [];
+
+    for ($i = 0; $i <= count($arr); $x++) {
+        array_push($r_query_results, $arr[i]);
     }
+/*
+$sql = "SELECT * FROM `menus`";
+$handle = $conn->prepare($sql);
+$handle->execute();
+$m_query_results = $handle->fetchAll(PDO::FETCH_ASSOC);
+//print_r($query_results);
+//echo json_encode($query_results);
+ */
+    // $r_query_results[0]->_children = "test";
 
-    echo $str;
-     */
+    print_r($arr);
+    print_r($r_query_results);
+
+    echo "test";
+
     $handle->closeCursor();
 }

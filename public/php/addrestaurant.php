@@ -2,20 +2,28 @@
 
 include "init.php";
 
-$restaurant = $_GET['restaurant'];
+$data = $_POST[0];
 
-addRestaurant($conn,$restaurant);
+$rname = $data[rname];
+$city = $data[city];
+$phone = $data[phone];
+$website = $data[website];
 
-function addRestaurant($conn,$restaurant) {
+addRestaurant($conn, $rname, $city, $phone, $website);
+
+function addRestaurant($conn, $rname, $city, $phone, $website)
+{
     global $handle;
-    $sql = "INSERT INTO `restaurants` (name) VALUES (:restaurant)";
-    $handle= $conn->prepare($sql);
-    $handle->bindParam('restaurant',$restaurant,PDO::PARAM_STR);
+
+    $sql = "INSERT INTO `restaurants` (rname, city, phone, website) VALUES (:rname,:city,:phone,:website)";
+    $handle = $conn->prepare($sql);
+    $handle->bindParam(':rname', $rname, PDO::PARAM_STR);
+    $handle->bindParam(':city', $city, PDO::PARAM_STR);
+    $handle->bindParam(':phone', $phone, PDO::PARAM_STR);
+    $handle->bindParam(':website', $website, PDO::PARAM_STR);
     $handle->execute();
 
     echo "Restaurant Added!";
 
-    $handle->closeCursor();	
+    $handle->closeCursor();
 }
-
-?>
