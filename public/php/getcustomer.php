@@ -13,7 +13,7 @@ function getCustomer($conn, $id)
 
     $sql = "SELECT * FROM `customers` WHERE id = :id";
     $handle = $conn->prepare($sql);
-    $handle->bindParam('id', $id, PDO::PARAM_STR);
+    $handle->bindParam(':id', $id, PDO::PARAM_STR);
     $handle->execute();
     $query_results = $handle->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($query_results);

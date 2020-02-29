@@ -165,11 +165,19 @@ export default {
       restaurant_options: {
         // tabulator table structure;
         rowClick: this.restaurant_rowClick,
+        dataTree: true,
+        dataTreeStartExpanded: false,
         layout: "fitColumns",
         columns: [
           {
             title: "ID",
             field: "id",
+            sorter: "string",
+            visible: false
+          },
+          {
+            title: "IID",
+            field: "iid",
             sorter: "string",
             visible: false
           },
@@ -203,22 +211,42 @@ export default {
         });
     },
     restaurant_rowClick: function(e, row) {
-      // For axios POST, be sure to use the qs npm module; php $_POST will not get the request otherwise.
-      axios
-        .post(
-          "php/getrestaurant.php",
-          qs.stringify({
-            id: row.getCell("id").getValue()
+      if (row.getCell("id").getValue() !== undefined) {
+        // For axios POST, be sure to use the qs npm module; php $_POST will not get the request otherwise.
+        axios
+          .post(
+            "php/getrestaurant.php",
+            qs.stringify({
+              id: row.getCell("id").getValue()
+            })
+          )
+          .then(response => {
+            this.group = "restaurant";
+            this.newrecord = false;
+            this.show_panel = true;
+            this.panelfields = response.data;
           })
-        )
-        .then(response => {
-          this.newrecord = false;
-          this.show_panel = true;
-          this.panelfields = response.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+          .catch(error => {
+            console.log(error);
+          });
+      } else {
+        axios
+          .post(
+            "php/getmenuitem.php",
+            qs.stringify({
+              iid: row.getCell("iid").getValue()
+            })
+          )
+          .then(response => {
+            this.group = "menu item";
+            this.newrecord = false;
+            this.show_panel = true;
+            this.panelfields = response.data;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
     },
     update_record: function() {
       axios
@@ -313,8 +341,7 @@ export default {
       this.cdata = response.data;
     });
     axios.get("php/getrestaurants.php").then(response => {
-      //this.rdata = response.data;
-      console.log(response.data);
+      this.rdata = response.data;
     });
   }
 };
@@ -322,7 +349,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-@import "~tabulator-tables/dist/css/tabulator_midnight.min.css";
+@import "~tabulator-tables/dist/css/tabulator_midnight.css";
 /* --- MAIN PAGE CSS --- */
 #page_main {
   height: 80%;
